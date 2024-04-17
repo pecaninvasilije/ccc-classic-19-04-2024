@@ -25,14 +25,17 @@ public class FileHandler {
         return content.toString();
     }
 
-    public void writeFile(String content) {
+    public void writeFile(String content, String newFilename) {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+            File file = new File(newFilename);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             writer.write(content);
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
-
         }
     }
 }
