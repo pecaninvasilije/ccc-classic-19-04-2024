@@ -2,6 +2,6 @@ package fileHandler;
 
 public class FileHandler {
     public String readFile(String filename) {
-        return "File content";
+        return filename;
     }
 }
