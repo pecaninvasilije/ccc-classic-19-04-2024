@@ -38,4 +38,8 @@ public class FileHandler {
             e.printStackTrace();
         }
     }
+
+    public static void main(String[] args) {
+
+    }
 }
