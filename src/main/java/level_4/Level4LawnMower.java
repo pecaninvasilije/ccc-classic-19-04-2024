@@ -101,6 +101,7 @@ public class Level4LawnMower {
     }
 
     private static boolean isValidMove(int x, int y, int width, int height, char[][] lawn, boolean[][] visited) {
+        System.out.println(x >= 0 && x < width && y >= 0 && y < height && lawn[y][x] == '.' && !visited[y][x]);
         return x >= 0 && x < width && y >= 0 && y < height && lawn[y][x] == '.' && !visited[y][x];
     }
 }
