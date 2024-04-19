@@ -2,8 +2,8 @@ package level_4;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class Level4LawnMower {
 
@@ -11,11 +11,37 @@ public class Level4LawnMower {
     private static final int[] dy = {0, 0, 1, -1};
     private static final char[] dirChars = {'D', 'A', 'S', 'W'};
 
-    public static void main(String[] args) throws FileNotFoundException {
-        String inputFile = "D:\\OutsourcedIdeaProject\\ccc-classic-19-04-2024\\src\\main\\resources\\level4\\level4_1.in";  // Update the path to your input file
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
+        List<String> inputFiles = Arrays.asList(
+                "D:\\OutsourcedIdeaProject\\ccc-classic-19-04-2024\\src\\main\\resources\\level4\\level4_1.in",
+                "D:\\OutsourcedIdeaProject\\ccc-classic-19-04-2024\\src\\main\\resources\\level4\\level4_2.in",
+                "D:\\OutsourcedIdeaProject\\ccc-classic-19-04-2024\\src\\main\\resources\\level4\\level4_3.in",
+                "D:\\OutsourcedIdeaProject\\ccc-classic-19-04-2024\\src\\main\\resources\\level4\\level4_4.in",
+                "D:\\OutsourcedIdeaProject\\ccc-classic-19-04-2024\\src\\main\\resources\\level4\\level4_5.in"
+        );
 
+        System.out.println("Starting application");
+        ExecutorService executor = Executors.newFixedThreadPool(inputFiles.size());
+        List<Future<String>> results = new ArrayList<>();
+
+        for (String inputFile : inputFiles) {
+            System.out.println("Thread started");
+            results.add(executor.submit(() -> processFile(inputFile)));
+        }
+
+        for (Future<String> result : results) {
+            System.out.println(result.get());
+        }
+
+        executor.shutdown();
+    }
+
+    private static String processFile(String inputFile) throws FileNotFoundException {
+        System.out.println("Processing " + inputFile);
         try (Scanner scanner = new Scanner(new FileInputStream(inputFile))) {
             int N = scanner.nextInt();  // Number of lawns
+            StringBuilder output = new StringBuilder();
+            output.append("Results for ").append(inputFile).append(":\n");
             for (int i = 0; i < N; i++) {
                 int width = scanner.nextInt();
                 int height = scanner.nextInt();
@@ -26,29 +52,29 @@ public class Level4LawnMower {
                     lawn[j] = scanner.nextLine().toCharArray();
                 }
 
-                String result = findPathForLawn(lawn, width, height);
-                System.out.println(result != null ? result : "INVALID");
+                String result = findPathForLawn(lawn, width, height, i + 1, inputFile);
+                output.append(result).append("\n");
             }
+            return output.toString();
         }
     }
 
-    private static String findPathForLawn(char[][] lawn, int width, int height) {
+    private static String findPathForLawn(char[][] lawn, int width, int height, int lawnIndex, String inputFile) {
         StringBuilder path = new StringBuilder();
         boolean[][] visited = new boolean[height][width];
 
-        // Heuristically find the best starting point or try multiple starting points
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (lawn[y][x] == '.' && dfs(lawn, visited, path, x, y, width, height, 1)) {
-                    return path.toString();
+                    return String.format("Lawn %d in %s: %s", lawnIndex, inputFile, path.toString());
                 }
                 path.setLength(0);
                 for (boolean[] row : visited) {
-                    java.util.Arrays.fill(row, false);
+                    Arrays.fill(row, false);
                 }
             }
         }
-        return null;
+        return String.format("Lawn %d in %s: INVALID", lawnIndex, inputFile);
     }
 
     private static boolean dfs(char[][] lawn, boolean[][] visited, StringBuilder path, int x, int y, int width, int height, int stepCount) {
@@ -57,16 +83,14 @@ public class Level4LawnMower {
             return true;
         }
 
-        // Order directions based on a heuristic (e.g., least restrictive first)
         Integer[] directions = {0, 1, 2, 3};
-        Arrays.sort(directions, (a, b) -> countFreeNeighbours(x + dx[b], y + dy[b], width, height, lawn, visited) -
-                countFreeNeighbours(x + dx[a], y + dy[a], width, height, lawn, visited));
+        Arrays.sort(directions, Comparator.comparingInt(dir -> countFreeNeighbours(x + dx[dir], y + dy[dir], width, height, lawn, visited)));
 
-        for (int i : directions) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
+        for (int dir : directions) {
+            int nx = x + dx[dir];
+            int ny = y + dy[dir];
             if (isValidMove(nx, ny, width, height, lawn, visited)) {
-                path.append(dirChars[i]);
+                path.append(dirChars[dir]);
                 if (dfs(lawn, visited, path, nx, ny, width, height, stepCount + 1)) {
                     return true;
                 }
@@ -93,7 +117,7 @@ public class Level4LawnMower {
         for (int i = 0; i < 4; i++) {
             int nx = x + dx[i];
             int ny = y + dy[i];
-            if (nx >= 0 && nx < width && ny >= 0 && ny < height && lawn[ny][nx] == '.' && !visited[ny][nx]) {
+            if (isValidMove(nx, ny, width, height, lawn, visited)) {
                 freeNeighbours++;
             }
         }
@@ -101,7 +125,6 @@ public class Level4LawnMower {
     }
 
     private static boolean isValidMove(int x, int y, int width, int height, char[][] lawn, boolean[][] visited) {
-        System.out.println(x >= 0 && x < width && y >= 0 && y < height && lawn[y][x] == '.' && !visited[y][x]);
         return x >= 0 && x < width && y >= 0 && y < height && lawn[y][x] == '.' && !visited[y][x];
     }
 }

@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Scanner;
 
-class Level4LawnMowerWarndorff {
+class Level4LawnBacktrackting {
 
     private static final int[] dx = {1, -1, 0, 0}; // Right, Left, Down, Up movements
     private static final int[] dy = {0, 0, 1, -1};
