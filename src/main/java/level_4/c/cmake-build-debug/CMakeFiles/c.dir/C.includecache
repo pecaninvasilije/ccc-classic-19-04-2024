@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+D:/OutsourcedIdeaProject/ccc-classic-19-04-2024/src/main/java/level_4/c/main.c
+stdio.h
+-
+stdlib.h
+-
+
